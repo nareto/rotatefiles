@@ -9,9 +9,9 @@ def rotate(conf, log):
     conffile=open(conf, 'r')
     logfile=open(log,'a')
 	
-    logfile.write(time.asctime(time.localtime()) + '\n\n')
+    logfile.write('\n\n' + time.asctime(time.localtime()) + '\n\n')
 
-    line=basedir=conffile.readline().rstrip('\n')
+    line=basedir=os.path.abspath(conffile.readline().rstrip('\n')) + '/'
     directories = dict()
     files_to_delete = []
     line = conffile.readline().rstrip('\n')
@@ -26,7 +26,12 @@ def rotate(conf, log):
             files_to_delete.append(whole_path + f[0])
         line = conffile.readline().rstrip('\n')
 
-    print files_to_delete
+    for f in files_to_delete:
+        try:
+            os.remove(f)
+            logfile.write("removed {0}\n".format(f))
+        except:
+            logfile.write("couldn't remove {0}\n".format(f))
     logfile.close()	
     conffile.close()
 
