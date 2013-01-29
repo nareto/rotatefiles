@@ -6,11 +6,12 @@ modification time. In other words you'd use it if you want to have only the most
 100 files in a certain directory, and delete all the others; I use it to delete old emails
 on my mailserver.
 
-**Usage**
+**Usage:**
+
 	rotatemails.py conf_file log_file
 	
 `conf_file` is a text file that has to formatted like this:  the first line contains an
-absolute path and subsequent contain a relative path (starting from the absolute path of
+absolute path, while subsequent lines contain a relative path (starting from the absolute path of
 the first line) then a space and then a number. For example, given the following as
 `conf_file`:
 
