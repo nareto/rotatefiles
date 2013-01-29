@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2.7
 
 import sys,os,time
 
@@ -24,6 +24,7 @@ def rotate(conf, log):
         tfiles_tuples.sort(key = lambda x: x[1])
         for f in tfiles_tuples[:-nmails]:
             files_to_delete.append(whole_path + f[0])
+        logfile.write("I'll remove {0} files from {1}\n".format(len(tfiles_tuples[:-nmails]), whole_path))
         line = conffile.readline().rstrip('\n')
 
     for f in files_to_delete:
