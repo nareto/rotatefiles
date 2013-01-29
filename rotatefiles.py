@@ -12,27 +12,32 @@ def rotate(conf, log):
     logfile.write('\n\n' + time.asctime(time.localtime()) + '\n\n')
 
     line=basedir=os.path.abspath(conffile.readline().rstrip('\n')) + '/'
-    directories = dict()
-    files_to_delete = []
+    dirs_and_files = dict()
     line = conffile.readline().rstrip('\n')
     while line != '':
-        path, nmails = line.split()
-        nmails = int(nmails)
+        path, nfiles = line.split()
+        nfiles = int(nfiles)
         whole_path = basedir + path + '/'
-        tfiles = os.listdir(whole_path)
-        tfiles_tuples = [(tf, os.path.getmtime(whole_path + tf)) for tf in tfiles]
-        tfiles_tuples.sort(key = lambda x: x[1])
-        for f in tfiles_tuples[:-nmails]:
-            files_to_delete.append(whole_path + f[0])
-        logfile.write("I'll remove {0} files from {1}\n".format(len(tfiles_tuples[:-nmails]), whole_path))
+        dirs_and_files[whole_path] = nfiles 
         line = conffile.readline().rstrip('\n')
 
-    for f in files_to_delete:
-        try:
-            os.remove(f)
-            logfile.write("removed {0}\n".format(f))
-        except:
-            logfile.write("couldn't remove {0}\n".format(f))
+    for path, nfiles in dirs_and_files.items():
+        actually_deleted = 0
+        tfiles = os.listdir(path)
+        #tuple files' path with their modification time to order them:
+        tfiles_tuples = [(tf, os.path.getmtime(path + tf)) for tf in tfiles] 
+        tfiles_tuples.sort(key = lambda x: x[1])
+        for f in tfiles_tuples[:-nfiles]:
+            try:
+                os.remove(path + f[0])
+                actually_deleted += 1
+                logfile.write("I removed {0}\n".format(path + f[0]))
+            except:
+                logfile.write("I couldn't remove {0}\n".format(f[0]))
+        logfile.write("I removed {0} files out of {1} from {2}\n"\
+                          .format(actually_deleted, 
+                                  len(tfiles_tuples[:-nfiles]), 
+                                  path))
     logfile.close()	
     conffile.close()
 
