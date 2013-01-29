@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 
 import sys,os,time
 from tempfile import mkstemp
@@ -22,45 +22,42 @@ def rotate(conf, log):
     
     line=basedir=conffile.readline().rstrip('\n')
     directories = dict()
-    finallist = []
+    files_to_delete = []
     line = conffile.readline().rstrip('\n')
     while line != '':
+        print "line---: ", line
         path, nmails = line.split()
-        directories[path] = int(nmails)
+        nmails = int(nmails)
+        directories[path] = nmails
         wpath = basedir + path
         total_mails = len(os.listdir(wpath))
-	    #print os.listdir(wpath), total_mails
-        logfile.write("{0}\n wanted: {1}\n mails: {2}\n removed: {3}\n\n".format(path, nmails, total_mails, max(0,total_mails - int(nmails))))
-        os.system('ls -t -1 {0} | tail -n {1} >> {2}'.format(wpath, max(0,total_mails - int(nmails)), tfilepath1))
-        for tline in tfile1.readlines():
-            tfile2.write(wpath + '/' + tline)
-	    line = conffile.readline().rstrip('\n')
+        #logfile.write("{0}\n wanted: {1}\n mails: {2}\n removed: {3}\n\n".format(path, nmails, total_mails, max(0,total_mails - nmails)))
+        tfiles = os.listdir(wpath)
+        tfiles_tuples = [(tf, os.path.getmtime(wpath + '/' + tf)) for tf in tfiles]
+        tfiles_tuples.sort(key = lambda x: x[1])
+        for f in tfiles_tuples[nmails:]:
+            files_to_delete.append(f[0])
+        line = conffile.readline().rstrip('\n')
+
+    print files_to_delete
+    tfile2.close()
 	
-	tfile2.close()
+    tfile2 = open(tfilepath2, 'r')
 	
-	tfile2 = open(tfilepath2, 'r')
-	
-	for line in tfile2.readlines():
-	    os.system('ls -lh {0}'.format(line))
-	    #print line.rstrip('\n')
-            #    try:
-            #        os.remove(line.rstrip('\n'))
-            #    except OSError:
-            #        logfile.write('\n:::::::::::OS ERROR: removing mail ::::::::::\n')
-            #        
-	
-	#mails_to_delete = tmpfile.readlines()
-	tfile1.close()
-	tfile2.close()
-	logfile.close()
-	try:
-	    os.remove(tfilepath1)
-	except OSError:
-	    logfile.write('\n:::::::::::OS ERROR: removing tfile1 ::::::::::\n')
-	try:
-	    os.remove(tfilepath2)
-	except OSError:
-	    logfile.write('\n:::::::::::OS ERROR: removing tfile2 ::::::::::\n')
+    for line in tfile2.readlines():
+        os.system('ls -lh {0}'.format(line))
+
+    tfile1.close()
+    tfile2.close()
+    logfile.close()
+    try:
+        os.remove(tfilepath1)
+    except OSError:
+        logfile.write('\n:::::::::::OS ERROR: removing tfile1 ::::::::::\n')
+    try:
+        os.remove(tfilepath2)
+    except OSError:
+        logfile.write('\n:::::::::::OS ERROR: removing tfile2 ::::::::::\n')
 	
     conffile.close()
 
